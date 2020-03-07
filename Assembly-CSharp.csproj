@@ -63,6 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\newMovement.cs" />
     <Compile Include="Assets\shipMovement.cs" />
     <Compile Include="Assets\tempSpawnArea.cs" />
     <Reference Include="Unity.Timeline.Editor">
