@@ -7,14 +7,13 @@ public class newMovement : MonoBehaviour
 {
 
     Rigidbody rb;
-    float fwdSpeed;
-    float sideSpeed;
-    float prevSpeed;
-    float upSpeed;
-    public float turnSpeed;
-    public float speedMult;
-    public float nudgeForce;
-    // Start is called before the first frame update
+    public truckScriptableObject truckScrip;
+
+
+    private float mainAcceleration;
+    private float lateralAcceleration;
+    private float verticalAcceleration;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -24,54 +23,79 @@ public class newMovement : MonoBehaviour
     void Update()
     {
 
-
-        //TODO Rework the side thrusters to allow for more subtle movements
-        // in general, ther eneeds to be a ramp up of accelleration that resets to 0 after each affect.
-        // Think about the nature of code examples where accelleration was the acting force in that moment
-        // to change the velocity, before returning to 0
-
-        //also all of this should probably happen elsewhere.
+        
+        //forward movement input to acceleration
         if (Input.GetKey(KeyCode.W))
         {
-            fwdSpeed += 0.1f; 
+            mainAcceleration += truckScrip.mainAccelerationIncrement;
+            mainAcceleration = Mathf.Clamp(mainAcceleration, 0, truckScrip.maxMainAcceleration);
+            
         }
+   
 
         if (Input.GetKey(KeyCode.S))
         {
-            fwdSpeed -= 0.1f;
-        }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+            mainAcceleration -= truckScrip.mainAccelerationIncrement;
+            mainAcceleration = Mathf.Clamp(mainAcceleration, -truckScrip.maxMainAcceleration /2,0) ;
+        }
+        if (Input.GetKeyUp(KeyCode.W) || Input.GetKeyUp(KeyCode.S))
         {
-            rb.velocity += transform.up * speedMult;
+            mainAcceleration = 0;
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+
+        //vertical movement input to acceleration
+        if (Input.GetKey(KeyCode.Space))
         {
-            rb.velocity += -transform.up * speedMult;
-            
+            verticalAcceleration += truckScrip.verticalAccelerationIncrement;
+            verticalAcceleration = Mathf.Clamp(verticalAcceleration, 0, truckScrip.maxVerticalAcceleration);
         }
-
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKey(KeyCode.LeftShift))
         {
-            rb.velocity += -transform.right * speedMult;
+            verticalAcceleration -= truckScrip.verticalAccelerationIncrement;
+            verticalAcceleration = Mathf.Clamp(verticalAcceleration, -truckScrip.maxVerticalAcceleration, 0);
         }
-
-        if (Input.GetKeyDown(KeyCode.D))
+        if (Input.GetKeyUp(KeyCode.Space) || Input.GetKeyUp(KeyCode.LeftShift))
         {
-            rb.velocity += transform.right * speedMult;
+            verticalAcceleration = 0;
         }
 
-
-        transform.Rotate(Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), -Input.GetAxis("Mouse X"));
-
-        if(fwdSpeed != prevSpeed)
+     
+        //lateral movement input to acceleration
+        if (Input.GetKey(KeyCode.A))
         {
-            float acceleration = fwdSpeed - prevSpeed;
-            rb.velocity += transform.forward * acceleration * speedMult;
+            lateralAcceleration -= truckScrip.lateralAccelerationIncrement;
+            lateralAcceleration = Mathf.Clamp(lateralAcceleration, -truckScrip.maxLateralAcceleration, 0);
         }
 
-        prevSpeed = fwdSpeed;
+        if (Input.GetKey(KeyCode.D))
+        {
+
+            lateralAcceleration += truckScrip.lateralAccelerationIncrement;
+            lateralAcceleration = Mathf.Clamp(lateralAcceleration,  0, truckScrip.maxLateralAcceleration);
+
+        }
+        if (Input.GetKeyUp(KeyCode.A) || Input.GetKeyUp(KeyCode.D))
+        {
+            lateralAcceleration = 0;
+        }
+
+        //rotating the camera
+        transform.Rotate(Input.GetAxis("Mouse Y")* truckScrip.turnSpeed, Input.GetAxis("Mouse X") * truckScrip.turnSpeed, -Input.GetAxis("Mouse X") * truckScrip.turnSpeed);
+
+
+        //assigning the velocity via acceleration and clamping it
+        rb.velocity += transform.forward * mainAcceleration;
+        rb.velocity += transform.right * lateralAcceleration;
+        rb.velocity += transform.up * verticalAcceleration;
+        rb.velocity = Vector3.ClampMagnitude(rb.velocity, truckScrip.maxVelocity);
+     
+
+        
+        
+
+        
 
     }
 }

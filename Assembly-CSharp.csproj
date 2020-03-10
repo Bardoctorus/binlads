@@ -64,8 +64,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\newMovement.cs" />
-    <Compile Include="Assets\shipMovement.cs" />
+    <Compile Include="Assets\temp.cs" />
     <Compile Include="Assets\tempSpawnArea.cs" />
+    <Compile Include="Assets\truckScriptableObject.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/Users/ianmb/Unity Projects/Binlads/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
